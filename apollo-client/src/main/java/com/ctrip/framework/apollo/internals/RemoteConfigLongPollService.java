@@ -91,6 +91,12 @@ public class RemoteConfigLongPollService {
     m_longPollRateLimiter = RateLimiter.create(m_configUtil.getLongPollQPS());
   }
 
+  /**
+   * 提交异步刷新
+   * @param namespace
+   * @param remoteConfigRepository
+   * @return
+     */
   public boolean submit(String namespace, RemoteConfigRepository remoteConfigRepository) {
     boolean added = m_longPollNamespaces.put(namespace, remoteConfigRepository);
     m_notifications.putIfAbsent(namespace, INIT_NOTIFICATION_ID);
@@ -100,6 +106,9 @@ public class RemoteConfigLongPollService {
     return added;
   }
 
+  /**
+   * 开启长链接
+   */
   private void startLongPolling() {
     if (!m_longPollStarted.compareAndSet(false, true)) {
       //already started
@@ -137,6 +146,12 @@ public class RemoteConfigLongPollService {
     this.m_longPollingStopped.compareAndSet(false, true);
   }
 
+  /**
+   * 长链接刷新
+   * @param appId
+   * @param cluster
+   * @param dataCenter
+     */
   private void doLongPollingRefresh(String appId, String cluster, String dataCenter) {
     final Random random = new Random();
     ServiceDTO lastServiceDto = null;

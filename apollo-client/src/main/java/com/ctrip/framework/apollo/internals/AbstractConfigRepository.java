@@ -44,6 +44,12 @@ public abstract class AbstractConfigRepository implements ConfigRepository {
     m_listeners.remove(listener);
   }
 
+  /**
+   * 发射仓库变更通知
+   * 最终发送监听器进行处理：listener.onChange(changeEvent);
+   * @param namespace
+   * @param newProperties
+     */
   protected void fireRepositoryChange(String namespace, Properties newProperties) {
     for (RepositoryChangeListener listener : m_listeners) {
       try {

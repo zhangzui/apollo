@@ -29,6 +29,15 @@ public class DefaultConfigFactory implements ConfigFactory {
     m_configUtil = ApolloInjector.getInstance(ConfigUtil.class);
   }
 
+  /**
+   * 创建Config
+   * DefaultConfig
+   * @param namespace the namespace
+   * 创建本地配置仓库
+   * configRepository:createLocalConfigRepository()
+   *
+   * @return
+     */
   @Override
   public Config create(String namespace) {
     DefaultConfig defaultConfig =
@@ -55,13 +64,20 @@ public class DefaultConfigFactory implements ConfigFactory {
     return null;
   }
 
+  /**
+   * 创建本地配置仓库
+   * @param namespace
+   * @return
+     */
   LocalFileConfigRepository createLocalConfigRepository(String namespace) {
+    //比较是否是本地环境 env == Env.LOCAL
     if (m_configUtil.isInLocalMode()) {
       logger.warn(
           "==== Apollo is in local mode! Won't pull configs from remote server for namespace {} ! ====",
           namespace);
       return new LocalFileConfigRepository(namespace);
     }
+    //否则创建远程配置仓库：createRemoteConfigRepository
     return new LocalFileConfigRepository(namespace, createRemoteConfigRepository(namespace));
   }
 

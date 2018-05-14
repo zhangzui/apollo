@@ -95,6 +95,7 @@ public class ConfigUtil {
   }
 
   /**
+   * 获取当前的环境
    * Get the current environment.
    *
    * @return the env

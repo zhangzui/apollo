@@ -70,7 +70,7 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
 
   /**
    * Constructor.
-   *
+   * 构造RemoteConfigRepository
    * @param namespace the namespace
    */
   public RemoteConfigRepository(String namespace) {
@@ -79,6 +79,7 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
     m_configUtil = ApolloInjector.getInstance(ConfigUtil.class);
     m_httpUtil = ApolloInjector.getInstance(HttpUtil.class);
     m_serviceLocator = ApolloInjector.getInstance(ConfigServiceLocator.class);
+    //初始化RemoteConfigLongPollService
     remoteConfigLongPollService = ApolloInjector.getInstance(RemoteConfigLongPollService.class);
     m_longPollServiceDto = new AtomicReference<>();
     m_remoteMessages = new AtomicReference<>();
@@ -87,8 +88,11 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
     m_loadConfigFailSchedulePolicy = new ExponentialSchedulePolicy(m_configUtil.getOnErrorRetryInterval(),
         m_configUtil.getOnErrorRetryInterval() * 8);
     gson = new Gson();
+    //同步数据
     this.trySync();
+    //定期刷新
     this.schedulePeriodicRefresh();
+    //定时长链接刷新
     this.scheduleLongPollingRefresh();
   }
 
@@ -105,6 +109,10 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
     //remote config doesn't need upstream
   }
 
+  /**
+   * scheduleAtFixedRate()
+   * 定期刷新逻辑，每隔五分钟进行拉取一次，防止服务端推送失败。
+   */
   private void schedulePeriodicRefresh() {
     logger.debug("Schedule periodic refresh with interval: {} {}",
         m_configUtil.getRefreshInterval(), m_configUtil.getRefreshIntervalTimeUnit());
@@ -121,6 +129,9 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
         m_configUtil.getRefreshIntervalTimeUnit());
   }
 
+  /**
+   * 远程数据同步操作
+   */
   @Override
   protected synchronized void sync() {
     Transaction transaction = Tracer.newTransaction("Apollo.ConfigService", "syncRemoteConfig");
@@ -293,6 +304,9 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
     return uri + pathExpanded;
   }
 
+  /**
+   * 定时长链接刷新
+   */
   private void scheduleLongPollingRefresh() {
     remoteConfigLongPollService.submit(m_namespace, this);
   }
