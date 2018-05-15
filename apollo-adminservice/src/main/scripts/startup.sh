@@ -22,7 +22,7 @@ function checkPidAlive {
     for i in `ls -t $SERVICE_NAME*.pid 2>/dev/null`
     do
         read pid < $i
-
+sudo
         result=$(ps -p "$pid")
         if [ "$?" -eq 0 ]; then
             return 0
